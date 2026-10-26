@@ -1,6 +1,6 @@
-from openai import OpenAI
-from dotenv import load_dotenv
 import os
+from dotenv import load_dotenv
+from openai import OpenAI
 
 load_dotenv()
 
@@ -9,19 +9,37 @@ client = OpenAI(
     api_key=os.getenv("API_KEY")
 )
 
-res = client.chat.completions.create(
-    model=os.getenv("MODEL_NAME"),
-    messages=[
-        {
-        "role" : "user",
-        "content" : "Hello ! "
-        }
-    ]
+EXIT_KEYWORDS = (
+    "exit", "quit", "bye", "close", "stop", "end", "terminate", 
+    "shutdown", "abort", "cancel", "halt", "finish", "wrap up", 
+    "conclude", "cease", "discontinue", "suspend", "break", "pause"
 )
 
-# while True:
-#     user_input = input("Yout" + " input : ")
+print("Chatbot initialized. Type your message or an exit keyword to quit.")
 
+while True:
+    user_input = input("\nPankaj: ").strip()
 
-print("Ollam response : ")
-print(res.choices[0].message.content)
+    if user_input.lower() in EXIT_KEYWORDS:
+        print("Exiting the program...")
+        break
+
+    if not user_input:
+        continue
+
+    try:
+        response = client.chat.completions.create(
+            model=os.getenv("MODEL_NAME"),
+            messages=[
+                {
+                    "role": "user", 
+                    "content": user_input
+                }
+            ]
+        )
+        
+        assistant_reply = response.choices[0].message.content
+        print(f"Assistant: {assistant_reply}")
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
